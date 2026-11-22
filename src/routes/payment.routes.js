@@ -1,0 +1,10 @@
+import express from 'express';
+import { createCheckout, webhook, imgbbUpload, revenueReport, platformStats } from '../controllers/payment.controller.js';
+import { verifyToken } from '../middleware/auth.middleware.js';
+const r = express.Router();
+r.post('/checkout', verifyToken, createCheckout);
+r.post('/webhook', webhook);
+r.post('/imgbb', verifyToken, imgbbUpload);
+r.get('/revenue', verifyToken, revenueReport);
+r.get('/stats', verifyToken, platformStats);
+export default r;
