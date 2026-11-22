@@ -1,0 +1,13 @@
+import express from 'express';
+import { listTuitions, createTuition, getTuition, updateTuition, deleteTuition, myTuitions, applicants, updateApplicationStatus } from '../controllers/tuition.controller.js';
+import { verifyToken, verifyTutor } from '../middleware/auth.middleware.js';
+const r = express.Router();
+r.get('/', listTuitions);
+r.get('/mine', verifyTutor, myTuitions);
+r.post('/', verifyTutor, createTuition);
+r.get('/:id', getTuition);
+r.put('/:id', verifyTutor, updateTuition);
+r.delete('/:id', verifyTutor, deleteTuition);
+r.get('/:id/applicants', verifyTutor, applicants);
+r.patch('/applications/:appId', verifyTutor, updateApplicationStatus);
+export default r;
