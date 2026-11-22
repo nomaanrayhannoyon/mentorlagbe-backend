@@ -1,0 +1,10 @@
+import express from 'express';
+import { apply, myApplications, bookmark, removeBookmark, bookmarks } from '../controllers/application.controller.js';
+import { verifyToken, verifyStudent } from '../middleware/auth.middleware.js';
+const r = express.Router();
+r.post('/', verifyStudent, apply);
+r.get('/mine', verifyStudent, myApplications);
+r.post('/bookmark', verifyStudent, bookmark);
+r.delete('/bookmark/:id', verifyStudent, removeBookmark);
+r.get('/bookmarks', verifyStudent, bookmarks);
+export default r;
