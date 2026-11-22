@@ -1,19 +1,25 @@
 {
   "name": "mentorlagbe-server",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "MentorLagbe backend API",
+  "main": "src/server.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "seed": "node src/seed/seed.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "module",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "cors": "^2.8.6",
     "dotenv": "^18.0.10",
     "express": "^5.3.0",
-    "mongodb": "^7.9.1"
+    "jsonwebtoken": "^9.0.2",
+    "mongodb": "^7.9.1",
+    "stripe": "^16.0.0",
+    "zod": "^3.23.8"
   }
 }
