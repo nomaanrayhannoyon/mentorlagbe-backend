@@ -1,8 +1,9 @@
 import express from 'express';
 import { apply, myApplications, bookmark, removeBookmark, bookmarks } from '../controllers/application.controller.js';
 import { verifyToken, verifyStudent } from '../middleware/auth.middleware.js';
+import { validate, applySchema } from '../utils/validation.js';
 const r = express.Router();
-r.post('/', verifyStudent, apply);
+r.post('/', verifyStudent, validate(applySchema), apply);
 r.get('/mine', verifyStudent, myApplications);
 r.post('/bookmark', verifyStudent, bookmark);
 r.delete('/bookmark/:id', verifyStudent, removeBookmark);

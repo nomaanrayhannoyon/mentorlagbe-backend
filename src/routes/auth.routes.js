@@ -1,8 +1,10 @@
 import express from 'express';
-import { register, login, me } from '../controllers/auth.controller.js';
+import { register, login, me, syncUser } from '../controllers/auth.controller.js';
 import { verifyToken } from '../middleware/auth.middleware.js';
+import { validate, registerSchema, loginSchema, syncSchema } from '../utils/validation.js';
 const r = express.Router();
-r.post('/register', register);
-r.post('/login', login);
+r.post('/register', validate(registerSchema), register);
+r.post('/login', validate(loginSchema), login);
+r.post('/sync', validate(syncSchema), syncUser);
 r.get('/me', verifyToken, me);
 export default r;
