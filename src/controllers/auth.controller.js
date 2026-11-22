@@ -1,21 +1,17 @@
-import { db } from '../config/db.js';
-import { ObjectId } from 'mongodb';
-import { signToken, hashPassword, comparePassword } from '../utils/auth.js';
+import { registerUser, loginUser, syncBetterAuthUser } from '../services/betterAuth.service.js';
+import { validate, registerSchema, loginSchema, syncSchema } from '../utils/validation.js';
 
-export async function syncUser(req,res,next){
-  try {
-    const { name, email, role } = req.body;
-    let user = await db.collection('users').findOne({email});
-    if(!user){
-      const r = await db.collection('users').insertOne({ name, email, password:'', role: role||'student', plan:'free', createdAt:new Date(), syncedFrom:'better-auth' });
-      user = { _id:r.insertedId, name, email, role: role||'student', plan:'free' };
-    } else {
-      await db.collection('users').updateOne({email},{$set:{name, role: role||user.role}});
+export const syncUser = [
+  validate(syncSchema),
+  async (req, res, next) => {
+    try {
+      const { user, token } = await syncBetterAuthUser(req.body);
+      res.json({ token, user });
+    } catch (e) {
+      next(e);
     }
-    const token = signToken({ id: user._id.toString(), email, role: user.role||role||'student' });
-    res.json({ token, user });
-  } catch(e){next(e);}
-}
+  }
+];
 
 export async function register(req,res,next){
   try {

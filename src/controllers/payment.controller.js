@@ -1,8 +1,7 @@
 import { db } from '../config/db.js';
 import { ObjectId } from 'mongodb';
-import Stripe from 'stripe';
-
-const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY) : null;
+import { createCheckoutSession, stripe } from '../services/stripe.service.js';
+import { uploadImage } from '../services/imgbb.service.js';
 
 export async function createCheckout(req,res,next){
   try {

@@ -1,10 +1,10 @@
 import express from 'express';
 import { users, updateRole, approveTuition, rejectTuition, pendingTuitions } from '../controllers/admin.controller.js';
-import { verifyAdmin } from '../middleware/auth.middleware.js';
+import { requireAdmin } from '../middleware/role.middleware.js';
 const r = express.Router();
-r.get('/users', verifyAdmin, users);
-r.patch('/users/:id/role', verifyAdmin, updateRole);
-r.get('/tuitions/pending', verifyAdmin, pendingTuitions);
-r.patch('/tuitions/:id/approve', verifyAdmin, approveTuition);
-r.patch('/tuitions/:id/reject', verifyAdmin, rejectTuition);
+r.get('/users', requireAdmin, users);
+r.patch('/users/:id/role', requireAdmin, updateRole);
+r.get('/tuitions/pending', requireAdmin, pendingTuitions);
+r.patch('/tuitions/:id/approve', requireAdmin, approveTuition);
+r.patch('/tuitions/:id/reject', requireAdmin, rejectTuition);
 export default r;
