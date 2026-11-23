@@ -1,3 +1,5 @@
+import { db } from '../config/db.js';
+import { ObjectId } from 'mongodb';
 import { registerUser, loginUser, syncBetterAuthUser } from '../services/betterAuth.service.js';
 import { validate, registerSchema, loginSchema, syncSchema } from '../utils/validation.js';
 

@@ -7,7 +7,7 @@ export async function createCheckout(req,res,next){
   try {
     if(!stripe) return res.status(503).json({error:'Stripe not configured'});
     const userId = req.user.id;
-    const dup = await db.collection('payments').findOne({userId, status:'pending'});
+    const dup = await db.collection('payments').findOne({userId, paymentStatus:'pending'});
     if(dup) return res.status(409).json({error:'Pending payment exists'});
     const session = await stripe.checkout.sessions.create({
       mode:'subscription',
@@ -16,7 +16,7 @@ export async function createCheckout(req,res,next){
       cancel_url: process.env.CLIENT_URL+'/profile?cancel=1',
       metadata:{userId},
     });
-    await db.collection('payments').insertOne({userId, sessionId:session.id, status:'pending', createdAt:new Date()});
+    await db.collection('payments').insertOne({userId, stripeSessionId:session.id, paymentStatus:'pending', createdAt:new Date()});
     res.json({url:session.url});
   } catch(e){next(e);}
 }
@@ -30,7 +30,10 @@ export async function webhook(req,res,next){
     if(event.type==='checkout.session.completed'){
       const s = event.data.object;
       const userId = s.metadata.userId;
-      await db.collection('payments').updateOne({sessionId:s.id},{$set:{status:'paid', transactionId:s.payment_intent, amount:s.amount_total}});
+      // Idempotency: skip if already processed
+      const existing = await db.collection('payments').findOne({stripeSessionId:s.id});
+      if(existing && existing.paymentStatus==='paid') return res.json({received:true});
+      await db.collection('payments').updateOne({stripeSessionId:s.id},{$set:{paymentStatus:'paid', transactionId:s.payment_intent, amount:s.amount_total}});
       await db.collection('users').updateOne({_id:new ObjectId(userId)},{$set:{plan:'pro'}});
     }
     res.json({received:true});
@@ -46,7 +49,7 @@ export async function imgbbUpload(req,res,next){
 }
 export async function revenueReport(req,res,next){
   try {
-    const agg = await db.collection('payments').aggregate([{$match:{status:'paid'}},{$group:{_id:null,total:{$sum:'$amount'},count:{$sum:1}}}]).toArray();
+    const agg = await db.collection('payments').aggregate([{$match:{paymentStatus:'paid'}},{$group:{_id:null,total:{$sum:'$amount'},count:{$sum:1}}}]).toArray();
     res.json(agg[0]||{total:0,count:0});
   } catch(e){next(e);}
 }
@@ -54,7 +57,7 @@ export async function platformStats(req,res,next){
   try {
     const users = await db.collection('users').countDocuments();
     const tuitions = await db.collection('tuitions').countDocuments();
-    const payments = await db.collection('payments').countDocuments({status:'paid'});
+    const payments = await db.collection('payments').countDocuments({paymentStatus:'paid'});
     res.json({users,tuitions,payments});
   } catch(e){next(e);}
 }

@@ -10,7 +10,7 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
  * @param {string} plan - 'free' or 'pro'.
  */
 export const createCheckoutSession = async (customerId, plan) => {
-  const priceId = plan === 'pro' ? process.env.STRIPE_PRO_PRICE_ID : null;
+  const priceId = plan === 'pro' ? process.env.STRIPE_PRICE_PRO : null;
   if (!priceId) throw new Error('Pro price ID not configured');
 
   const session = await stripe.checkout.sessions.create({
